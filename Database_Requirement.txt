@@ -1,0 +1,102 @@
+Database Requirement Document
+=============================
+
+Project: SoundCloud-like Music Streaming Platform
+
+1. Database Type
+----------------
+- Relational Database: MySQL
+- Reason for using MySQL:
+    - Structured data with relationships (users, songs, playlists)
+    - Strong ACID compliance and support for foreign keys
+    - Widely used, lightweight, and easy to integrate with C++ or Java-based applications
+
+2. Pre-requisite Configuration
+------------------------------
+- Install MySQL Server on your machine
+- Create a new database:
+    CREATE DATABASE soundcloud;
+
+- Create a new user and grant privileges:
+    CREATE USER 'username'@'localhost' IDENTIFIED BY '1234';
+    GRANT ALL PRIVILEGES ON soundcloud.* TO 'username'@'localhost';
+    FLUSH PRIVILEGES;
+
+- Use the new database:
+    USE soundcloud;
+
+3. Table Definitions
+--------------------
+
+-- 1. Users Table
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(25) UNIQUE NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    password VARCHAR(20) NOT NULL,
+    age INT NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    usertype VARCHAR(25) NOT NULL
+);
+
+-- 2. Artists Table
+CREATE TABLE artists (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(25) NOT NULL
+);
+
+-- 3. User_languages Table
+CREATE TABLE user_languages (
+    userid INT,
+    language VARCHAR(25) NOT NULL,
+    PRIMARY KEY (userid, language),
+    FOREIGN KEY (userid) REFERENCES users(id)
+);
+
+-- 4. User_artists Table
+CREATE TABLE user_artists (
+    userid INT,
+    artistid INT,
+    PRIMARY KEY (userid, artistid),
+    FOREIGN KEY (userid) REFERENCES users(id),
+    FOREIGN KEY (artistid) REFERENCES artists(id)
+);
+
+-- 5. User_genres Table
+CREATE TABLE user_genres (
+    userid INT,
+    genre VARCHAR(25) NOT NULL,
+    PRIMARY KEY (userid, genre),
+    FOREIGN KEY (userid) REFERENCES users(id)
+);
+
+-- 6. Songs Table
+CREATE TABLE songs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(25) NOT NULL,
+    artist VARCHAR(25) NOT NULL,
+    duration FLOAT NOT NULL,
+    language VARCHAR(25) NOT NULL,
+    genre VARCHAR(25) NOT NULL,
+    path VARCHAR(75) NOT NULL
+);
+
+-- 7. User_history Table
+CREATE TABLE user_history (
+    userid INT,
+    songid INT,
+    PRIMARY KEY (userid, songid),
+    FOREIGN KEY (userid) REFERENCES users(id),
+    FOREIGN KEY (songid) REFERENCES songs(id)
+);
+
+-- 8. User_playlists Table
+CREATE TABLE user_playlists (
+    userid INT,
+    name VARCHAR(25) NOT NULL,
+    songid INT,
+    timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (userid, name),
+    FOREIGN KEY (userid) REFERENCES users(id),
+    FOREIGN KEY (songid) REFERENCES songs(id)
+);
